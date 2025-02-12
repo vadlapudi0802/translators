@@ -1,0 +1,70 @@
+from transformers import pipeline
+
+def translate_text_streaming(text, source_language, target_language): 
+    """ 
+    Translates text from a source language to a target language using a pre-trained model, with streaming-like behavior. 
+    
+    Args:
+        text: The text to be translated.
+        source_language: The source language code (e.g., "en" for English, "es" for Spanish).
+        target_language: The target language code (e.g., "fr" for French, "de" for German).
+    
+    Returns:
+        The translated text, or None if an error occurs.
+    """
+    try:
+        # Construct the pipeline name. This is crucial and depends on the model you want to use.
+        pipeline_name = f"Helsinki-NLP/opus-mt-{source_language}-{target_language}"
+
+        # Create the translation pipeline. This downloads the model if it's not already cached.
+        translator = pipeline("translation", model=pipeline_name)
+
+        # Here, instead of translating the entire text at once, simulate streaming by processing chunks.
+        # If the text is large, split it into manageable chunks (for example, by sentences or word counts).
+        
+        # You can split by sentence or just use the full text.
+        sentences = text.split('.')  # Simple split by period (you can improve it for better accuracy)
+        
+        translated_text = []
+        
+        for i, sentence in enumerate(sentences):
+            if sentence.strip():
+                print(f"Translating sentence {i + 1}/{len(sentences)}...")
+                result = translator(sentence.strip())  # Translate each sentence
+                translated_text.append(result[0]['translation_text'])
+
+        return ' '.join(translated_text)
+    
+    except Exception as e:
+        print(f"Error during translation: {e}")
+        return None
+
+# Example usage:
+
+text_to_translate = "Hello, how are you?"
+source_language = "en"
+target_language = "es"  # Spanish
+translated_text = translate_text_streaming(text_to_translate, source_language, target_language)
+
+if translated_text:
+    print(f"Original text: {text_to_translate}")
+    print(f"Translated text: {translated_text}")
+
+text_to_translate = "This is another example."
+source_language = "en"
+target_language = "fr"  # French
+translated_text = translate_text_streaming(text_to_translate, source_language, target_language)
+
+if translated_text:
+    print(f"Original text: {text_to_translate}")
+    print(f"Translated text: {translated_text}")
+
+# Example of handling an unsupported language pair:
+text_to_translate = "This will likely fail."
+source_language = "en"
+target_language = "xx"  # A made-up language code
+translated_text = translate_text_streaming(text_to_translate, source_language, target_language)
+
+if translated_text:
+    print(f"Original text: {text_to_translate}")
+    print(f"Translated text: {translated_text}")
